@@ -1,0 +1,8 @@
+To start the application run the following commands
+
+docker-compose up -d mongo
+docker-compose up -d mongo-init-replica
+docker-compose up -d rocketchat
+docker-compose up -d jenkins
+
+This requires docker and docker-compose to be installed and selinux to be disabled.
