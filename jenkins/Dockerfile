@@ -1,7 +1,5 @@
 FROM openjdk:8-jdk
 
-RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
-
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -12,6 +10,11 @@ ARG JENKINS_HOME=/var/jenkins_home
 
 ENV JENKINS_HOME $JENKINS_HOME
 ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
+
+RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\ 
+     git \
+     curl && \
+     rm -rf /var/lib/apt/lists/*
 
 # Jenkins is run with user `jenkins`, uid = 1000
 # If you bind mount a volume from the host or a data container,
