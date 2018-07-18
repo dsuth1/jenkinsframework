@@ -5,6 +5,7 @@ services:
   rocketchat:
     image: rocketchat/rocket.chat:latest
     restart: unless-stopped
+    hostname: rocketchat
     volumes:
       - ./uploads:/app/uploads
     environment:

@@ -13,6 +13,7 @@ ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
 
 RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\ 
      git \
+     docker \
      curl && \
      rm -rf /var/lib/apt/lists/*
 
