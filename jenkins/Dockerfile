@@ -28,6 +28,7 @@ RUN mkdir -p $JENKINS_HOME \
 # Jenkins home directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
 ADD jobs /var/jenkins_home/jobs
+ADD config.xml /var/jenkins_home/
 RUN chmod -R 777 /var/jenkins_home/
 VOLUME $JENKINS_HOME
 
@@ -104,5 +105,5 @@ ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]
 # from a derived Dockerfile, can use `RUN plugins.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
 COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh 
-RUN /usr/local/bin/install-plugins.sh workflow-aggregator blueocean ansible pipeline-utility-steps azure-cli azure-credentials rocketchatnotifier
+RUN /usr/local/bin/install-plugins.sh workflow-aggregator blueocean ansible pipeline-utility-steps rocketchatnotifier
 

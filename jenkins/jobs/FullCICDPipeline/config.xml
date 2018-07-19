@@ -1,0 +1,60 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.23">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.29.2">
+      <projectUrl>https://github.com/dsutherland1492/jenkinsframeworkapp/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers>
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.29.2">
+          <spec></spec>
+        </com.cloudbees.jenkins.GitHubPushTrigger>
+      </triggers>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.54">
+    <script>node {
+   def mvnHome
+   stage(&apos;Preparation&apos;) { // for display purposes
+      // Get some code from a GitHub repository
+      git &apos;https://github.com/dsutherland1492/jenkinsframeworkapp&apos;
+   }
+   stage(&apos;Build&apos;) {
+      rocketSend &quot;Build Started&quot; 
+      try {
+        sh &quot;mvn clean install -f appbuild/pom.xml&quot;
+      } catch (Exception e) {
+         rocketSend &quot;Build Failed&quot;
+         error(&quot;Build Failed&quot;)
+      }
+   }
+   stage(&apos;Preprod Deploy&apos;) {
+      rocketSend &quot;${env.JOB_NAME} ${env.BUILD_NUMBER} - Build successful, awaiting approval before preprod deploy&quot; 
+      input &apos;Build successful, proceed to preproduction deployment?&apos;
+      
+   }
+   stage(&apos;Preprod Test&apos;) {
+      
+   }
+   stage(&apos;Merge to Master&apos;) {
+      
+   }
+   stage(&apos;Prod Deploy&apos;) {
+      
+   }
+   stage(&apos;Prod Test&apos;) {
+      
+   }
+   stage(&apos;Results&apos;) {
+      
+   }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
