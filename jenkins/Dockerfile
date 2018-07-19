@@ -29,6 +29,7 @@ RUN mkdir -p $JENKINS_HOME \
 # can be persisted and survive image upgrades
 ADD jobs /var/jenkins_home/jobs
 ADD config.xml /var/jenkins_home/
+ADD jenkins.plugins.rocketchatnotifier.RocketChatNotifier.xml /var/jenkins_home/
 RUN chmod -R 777 /var/jenkins_home/
 VOLUME $JENKINS_HOME
 
@@ -78,7 +79,7 @@ COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 RUN apt-get install python
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
-RUN pip install --upgrade pip && pip install ansible ansible[azure]
+RUN pip install --upgrade pip && pip install ansible packaging && pip install ansible[azure]
 
 ARG MAVEN_VERSION=3.5.4
 ARG USER_HOME_DIR="/var/jenkins_home"

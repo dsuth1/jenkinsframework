@@ -33,9 +33,15 @@
       }
    }
    stage(&apos;Preprod Deploy&apos;) {
-      rocketSend &quot;${env.JOB_NAME} ${env.BUILD_NUMBER} - Build successful, awaiting approval before preprod deploy&quot; 
+      rocketSend &quot;Build successful, awaiting approval before preprod deploy&quot;
       input &apos;Build successful, proceed to preproduction deployment?&apos;
-      
+      try {
+        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-create-base-instance.yml&quot;
+        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-config-base-instance.yml&quot;
+      } catch (Exception e) {
+         rocketSend &quot;Preprod Deploy Failed&quot;
+         error(&quot;Preprod Deploy Failed&quot;)
+      }
    }
    stage(&apos;Preprod Test&apos;) {
       
