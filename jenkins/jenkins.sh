@@ -1,5 +1,8 @@
 #! /bin/bash -e
 
+#generate ssh key if it doesn't exist
+cat /dev/zero | ssh-keygen -q -N ""
+
 : "${JENKINS_WAR:="/usr/share/jenkins/jenkins.war"}"
 : "${JENKINS_HOME:="/var/jenkins_home"}"
 touch "${COPY_REFERENCE_FILE_LOG}" || { echo "Can not write to ${COPY_REFERENCE_FILE_LOG}. Wrong volume permissions?"; exit 1; }
