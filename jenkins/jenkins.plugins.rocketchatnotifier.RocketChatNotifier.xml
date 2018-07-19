@@ -1,0 +1,8 @@
+<jenkins.plugins.rocketchatnotifier.RocketChatNotifier_-DescriptorImpl plugin="rocketchatnotifier@1.2.1">
+  <rocketServerUrl>http://rocketchat:3000</rocketServerUrl>
+  <trustSSL>false</trustSSL>
+  <username>dsutherland</username>
+  <password>ShadowSoft2018</password>
+  <channel>#general</channel>
+  <buildServerUrl>http://40.121.68.74/</buildServerUrl>
+</jenkins.plugins.rocketchatnotifier.RocketChatNotifier_-DescriptorImpl>
