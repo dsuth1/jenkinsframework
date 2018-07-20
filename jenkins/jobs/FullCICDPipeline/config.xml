@@ -22,9 +22,10 @@
    stage(&apos;Preparation&apos;) { // for display purposes
       // Get some code from a GitHub repository
       git &apos;https://github.com/dsutherland1492/jenkinsframeworkapp&apos;
+      sh &quot;chmod +x infradeploy/inventory/azure&quot;
    }
    stage(&apos;Build&apos;) {
-      rocketSend &quot;Build Started&quot; 
+      rocketSend &quot;Build Started&quot;
       try {
         sh &quot;mvn clean install -f appbuild/pom.xml&quot;
       } catch (Exception e) {
@@ -36,27 +37,50 @@
       rocketSend &quot;Build successful, awaiting approval before preprod deploy&quot;
       input &apos;Build successful, proceed to preproduction deployment?&apos;
       try {
+        env.RESOURCE_GROUP=&apos;jenkinsframework-preprod&apos;
+        env.PURPOSE=&apos;wildflytest&apos;
+        env.AZURE_STORAGE_ACCOUNT=&apos;jenkinspreprod&apos;
         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-create-base-instance.yml&quot;
         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-config-base-instance.yml&quot;
+        rocketSend &quot;Preprod Deploy Success&quot;
       } catch (Exception e) {
          rocketSend &quot;Preprod Deploy Failed&quot;
          error(&quot;Preprod Deploy Failed&quot;)
+         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
       }
    }
    stage(&apos;Preprod Test&apos;) {
-      
-   }
-   stage(&apos;Merge to Master&apos;) {
-      
+      try {
+        sh &quot;echo testing&quot;
+      } finally {
+          //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
+      }
    }
    stage(&apos;Prod Deploy&apos;) {
-      
+      rocketSend &quot;Preprod successful, awaiting approval before prod deploy&quot;
+      input &apos;Preprod successful, proceed to production deployment?&apos;
+      try {
+        env.RESOURCE_GROUP=&apos;jenkinsframework-prod&apos;
+        env.PURPOSE=&apos;wildflyprod&apos;
+        env.AZURE_STORAGE_ACCOUNT=&apos;jenkinsprod&apos;
+        sh &quot;chmod +x infradeploy/inventory/azure&quot;
+        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-create-base-instance.yml&quot;
+        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-config-base-instance.yml&quot;
+      } catch (Exception e) {
+         rocketSend &quot;Prod Deploy Failed&quot;
+         error(&quot;Prod Deploy Failed&quot;)
+         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
+      }
    }
    stage(&apos;Prod Test&apos;) {
-      
+      try {
+        sh &quot;echo testing&quot;
+      } finally {
+          //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
+      }
    }
    stage(&apos;Results&apos;) {
-      
+      rocketSend &quot;Production deployment ready&quot;
    }
 }</script>
     <sandbox>true</sandbox>
