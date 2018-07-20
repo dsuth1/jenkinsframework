@@ -14,7 +14,13 @@ ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
 RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\ 
      git \
      docker \
-     curl && \
+     curl \
+     python \
+     ruby \
+     ruby-dev \
+     gcc \
+     g++ \
+     make && \
      rm -rf /var/lib/apt/lists/*
 
 # Jenkins is run with user `jenkins`, uid = 1000
@@ -77,8 +83,7 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
-RUN apt-get install python
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && gem install inspec
 RUN pip install --upgrade pip && pip install ansible packaging && pip install ansible[azure]
 
 ARG MAVEN_VERSION=3.5.4
