@@ -1,5 +1,5 @@
-This repository represents a demonstration of a potential CI/CD pipeline built around Jenkins, Ansible, Rocketchat, Azure, Inspec, Maven and Wildfly.  
-The companion repository is located at http://github.com/dsutherland1492/jenkinsframeworkapp
+This repository represents a demonstration of a potential CI/CD pipeline built around Jenkins, Ansible, Rocketchat, Azure, 
+Inspec, Maven and Wildfly.  The companion repository is located at http://github.com/dsutherland1492/jenkinsframeworkapp
 
 To start the application run the following commands
 
