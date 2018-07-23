@@ -59,7 +59,7 @@
         sh &quot;echo $PREPROD_IP&quot;
         sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PREPROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
       } finally {
-          //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
+          sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
       }
    }
    stage(&apos;Prod Deploy&apos;) {
@@ -87,7 +87,7 @@
         ).trim()
         sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
       } finally {
-          //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
+          sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
       }
    }
    stage(&apos;Results&apos;) {
