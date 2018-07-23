@@ -1,8 +1,13 @@
+This repository represents a demonstration of a potential CI/CD pipeline built around Jenkins, Ansible, Rocketchat, Azure, Inspec, Maven and Wildfly.  
+The companion repository is located at http://github.com/dsutherland1492/jenkinsframeworkapp
+
 To start the application run the following commands
 
 docker-compose up -d mongo
-docker-compose up -d mongo-init-replica
+docker-compose up -d mongo-init-replica (only required on first run)
 docker-compose up -d rocketchat
 docker-compose up -d jenkins
 
-This requires docker and docker-compose to be installed and selinux to be disabled.
+This requires docker and docker-compose to be installed and selinux to be disabled.  After deployment finishes, you will need 
+to login to rocketchat, create a user account, then login to jenkins, update the AZURE environment variables to match your 
+environment and the Rocketchat plugin to match your credentials.
