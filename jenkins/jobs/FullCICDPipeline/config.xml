@@ -51,7 +51,13 @@
    }
    stage(&apos;Preprod Test&apos;) {
       try {
-        sh &quot;echo testing&quot;
+        rocketSend &quot;Preprod Deployed.  Testing&quot;
+        PREPROD_IP = sh (
+            script: &quot;cd infradeploy &amp;&amp; ansible -i inventory/azure --list purpose_wildflytest | sed -n &apos;1!p&apos; | tr -d &apos; &apos;&quot;,
+            returnStdout: true
+        ).trim()
+        sh &quot;echo $PREPROD_IP&quot;
+        sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PREPROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
       } finally {
           //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
       }
@@ -74,7 +80,12 @@
    }
    stage(&apos;Prod Test&apos;) {
       try {
-        sh &quot;echo testing&quot;
+        rocketSend &quot;Prod Deployed.  Testing&quot;
+        PROD_IP = sh (
+            script: &quot;cd infradeploy &amp;&amp; ansible -i inventory/azure --list purpose_wildflyprod | sed -n &apos;1!p&apos; | tr -d &apos; &apos;&quot;,
+            returnStdout: true
+        ).trim()
+        sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
       } finally {
           //sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
       }
