@@ -24,3 +24,6 @@ docker-compose up -d jenkins
 After deployment finishes, you will need to login to rocketchat, create a user account, then login to jenkins, update the AZURE 
 environment variables to match your environment and the Rocketchat plugin to match your credentials.  For automatic builds, update your 
 git repository fork to publish webhooks to your Jenkins instance.
+
+Jenkins    - http://<ipofhost>
+Rocketchat - http://<ipofhost>:3000
