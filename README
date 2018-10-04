@@ -4,6 +4,7 @@ at http://github.com/dsutherland1492/jenkinsframeworkapp
 
 To enable your machine, run the following as root
 
+setenforce 0
 yum install git docker epel-release
 yum install python-pip
 pip install --upgrade pip
@@ -20,7 +21,6 @@ docker-compose up -d mongo-init-replica (only required on first run)
 docker-compose up -d rocketchat
 docker-compose up -d jenkins
 
-This requires docker and docker-compose to be installed and selinux to be disabled.  After deployment finishes, you will need 
-to login to rocketchat, create a user account, then login to jenkins, update the AZURE environment variables to match your 
-environment and the Rocketchat plugin to match your credentials.  For automatic builds, update your git repository fork to 
-publish webhooks to your Jenkins instance.
+After deployment finishes, you will need to login to rocketchat, create a user account, then login to jenkins, update the AZURE 
+environment variables to match your environment and the Rocketchat plugin to match your credentials.  For automatic builds, update your 
+git repository fork to publish webhooks to your Jenkins instance.
