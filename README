@@ -1,5 +1,17 @@
 This repository represents a demonstration of a potential CI/CD pipeline built around Jenkins, Ansible, Rocketchat, Azure, 
-Inspec, Maven and Wildfly.  The companion repository is located at http://github.com/dsutherland1492/jenkinsframeworkapp
+Inspec, Maven and Wildfly.  Install git, docker, and docker-compose to enable your machine,  The companion repository is located 
+at http://github.com/dsutherland1492/jenkinsframeworkapp
+
+To enable your machine, run the following as root
+
+yum install git docker epel-release
+yum install python-pip
+pip install --upgrade pip
+pip install docker-compose
+groupadd docker
+usermod -aG docker $USER
+systemctl enable docker
+systemctl start docker
 
 To start the application run the following commands
 
