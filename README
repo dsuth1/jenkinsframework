@@ -19,6 +19,8 @@ To start the application run the following commands
 docker-compose up -d mongo
 docker-compose up -d mongo-init-replica (only required on first run)
 docker-compose up -d rocketchat
+docker-compose up -d vault
+docker-compose up -d consul
 docker-compose up -d jenkins
 
 After deployment finishes, you will need to login to rocketchat, create a user account, then login to jenkins, update the AZURE 
