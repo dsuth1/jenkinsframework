@@ -47,6 +47,7 @@ services:
 
   consul:
     container_name: consul.server
+    hostname: consul
     command: agent -server -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect=1
     image: consul:latest
     volumes:
@@ -58,6 +59,7 @@ services:
 
   vault:
     container_name: vault.server
+    hostname: vault
     image: vault
     ports:
       - "9200:8200"
@@ -68,5 +70,6 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      - VAULT_LOCAL_CONFIG={"backend":{"consul":{"address":"${LOCAL_IP}:9500","advertise_addr":"http://${LOCAL_IP}", "path":"vault/"}},"listener":{"tcp":{"address":"0.0.0.0:8200","tls_disable":1}}}
+      - VAULT_LOCAL_CONFIG={"backend":{"consul":{"address":"consul:8500","advertise_addr":"http://consul", "path":"vault/"}},"listener":{"tcp":{"address":"0.0.0.0:8200","tls_disable":1}}}
+      - VAULT_ADDR=http://127.0.0.1:8200
     command: server
