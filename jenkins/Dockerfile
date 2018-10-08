@@ -97,7 +97,7 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && gem install inspec
-RUN pip install --upgrade pip && pip install ansible packaging openshift PyYAML && pip install ansible[azure]
+RUN pip install --upgrade pip && pip install ansible packaging openshift PyYAML && pip install ansible[azure] && pip install git+https://github.com/ansible/ansible-container.git@develop
 
 ARG MAVEN_VERSION=3.5.4
 ARG USER_HOME_DIR="/var/jenkins_home"
