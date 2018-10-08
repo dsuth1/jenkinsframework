@@ -41,12 +41,16 @@ services:
     build:
       context: jenkins/
     hostname: jenkins
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 80:8080
       - 50000:50000
 
   consul:
     container_name: consul.server
+    restart: unless-stopped
     hostname: consul
     command: agent -server -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect=1
     image: consul:latest
@@ -59,6 +63,7 @@ services:
 
   vault:
     container_name: vault.server
+    restart: unless-stopped
     hostname: vault
     image: vault
     ports:

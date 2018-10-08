@@ -14,13 +14,25 @@ ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
 RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\ 
      git \
      docker \
+     sudo \
      curl \
      python \
      ruby \
      ruby-dev \
      gcc \
      g++ \
+     apt-transport-https \
+     ca-certificates \
+     gnupg2 \
+     software-properties-common \
      make && \
+     curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
+     add-apt-repository \
+       "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+        $(lsb_release -cs) \
+        stable" && \
+     apt-get update && \
+     apt-get -y install docker-ce && \
      rm -rf /var/lib/apt/lists/*
 
 # Jenkins is run with user `jenkins`, uid = 1000
@@ -29,7 +41,8 @@ RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\
 RUN mkdir -p $JENKINS_HOME \
   && chown ${uid}:${gid} $JENKINS_HOME \
   && groupadd -g ${gid} ${group} \
-  && useradd -d "$JENKINS_HOME" -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+  && useradd -d "$JENKINS_HOME" -u ${uid} -g ${gid} -m -s /bin/bash ${user} \
+  && echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 # Jenkins home directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
