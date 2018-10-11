@@ -14,6 +14,7 @@ ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
 RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\ 
      git \
      docker \
+     lsb-release \ 
      sudo \
      curl \
      python \
@@ -24,7 +25,7 @@ RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\
      apt-transport-https \
      ca-certificates \
      gnupg2 \
-     software-properties-common \
+     software-properties-common \ 
      make && \
      curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
      add-apt-repository \
@@ -34,6 +35,12 @@ RUN apt-get update -qq && apt-get install -qqy --no-install-recommends\
      apt-get update && \
      apt-get -y install docker-ce && \
      rm -rf /var/lib/apt/lists/*
+
+RUN AZ_REPO=$(lsb_release -cs) && \
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list && \
+    curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    apt-get update && \
+    apt-get install azure-cli
 
 # Jenkins is run with user `jenkins`, uid = 1000
 # If you bind mount a volume from the host or a data container,
@@ -97,7 +104,7 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && gem install inspec
-RUN pip install --upgrade pip && pip install ansible packaging openshift PyYAML && pip install ansible[azure] && pip install git+https://github.com/ansible/ansible-container.git@develop
+RUN pip install --upgrade pip && pip install ansible packaging openshift PyYAML && pip install ansible[azure] && pip install git+https://github.com/ansible/ansible-container.git@develop && pip install openshift==0.6
 
 ARG MAVEN_VERSION=3.5.4
 ARG USER_HOME_DIR="/var/jenkins_home"

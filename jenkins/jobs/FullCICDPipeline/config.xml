@@ -1,98 +1,110 @@
 <?xml version='1.1' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@2.23">
+<flow-definition plugin="workflow-job@2.25">
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.29.2">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.29.3">
       <projectUrl>https://github.com/dsutherland1492/jenkinsframeworkapp/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
       <triggers>
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.29.2">
+        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.29.3">
           <spec></spec>
         </com.cloudbees.jenkins.GitHubPushTrigger>
       </triggers>
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.54">
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.57">
     <script>node {
    def mvnHome
-   stage(&apos;Preparation&apos;) { // for display purposes
-      // Get some code from a GitHub repository
-      git &apos;https://github.com/dsutherland1492/jenkinsframeworkapp&apos;
-      sh &quot;chmod +x infradeploy/inventory/azure&quot;
-   }
-   stage(&apos;Build&apos;) {
-      rocketSend &quot;Build Started&quot;
-      try {
-        sh &quot;mvn clean install -f appbuild/pom.xml&quot;
-      } catch (Exception e) {
-         rocketSend &quot;Build Failed&quot;
-         error(&quot;Build Failed&quot;)
-      }
-   }
-   stage(&apos;Preprod Deploy&apos;) {
-      rocketSend &quot;Build successful, awaiting approval before preprod deploy&quot;
-      input &apos;Build successful, proceed to preproduction deployment?&apos;
-      try {
-        env.RESOURCE_GROUP=&apos;jenkinsframework-preprod&apos;
-        env.PURPOSE=&apos;wildflytest&apos;
-        env.AZURE_STORAGE_ACCOUNT=&apos;jenkinspreprod&apos;
-        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-create-base-instance.yml&quot;
-        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-config-base-instance.yml&quot;
-        rocketSend &quot;Preprod Deploy Success&quot;
-      } catch (Exception e) {
-         rocketSend &quot;Preprod Deploy Failed&quot;
-         error(&quot;Preprod Deploy Failed&quot;)
-         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
-      }
-   }
-   stage(&apos;Preprod Test&apos;) {
-      try {
-        rocketSend &quot;Preprod Deployed.  Testing&quot;
-        PREPROD_IP = sh (
-            script: &quot;cd infradeploy &amp;&amp; ansible -i inventory/azure --list purpose_wildflytest | sed -n &apos;1!p&apos; | tr -d &apos; &apos;&quot;,
-            returnStdout: true
-        ).trim()
-        sh &quot;echo $PREPROD_IP&quot;
-        sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PREPROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
-      } finally {
-          sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
-      }
-   }
-   stage(&apos;Prod Deploy&apos;) {
-      rocketSend &quot;Preprod successful, awaiting approval before prod deploy&quot;
-      input &apos;Preprod successful, proceed to production deployment?&apos;
-      try {
-        env.RESOURCE_GROUP=&apos;jenkinsframework-prod&apos;
-        env.PURPOSE=&apos;wildflyprod&apos;
-        env.AZURE_STORAGE_ACCOUNT=&apos;jenkinsprod&apos;
-        sh &quot;chmod +x infradeploy/inventory/azure&quot;
-        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-create-base-instance.yml&quot;
-        sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-config-base-instance.yml&quot;
-      } catch (Exception e) {
-         rocketSend &quot;Prod Deploy Failed&quot;
-         error(&quot;Prod Deploy Failed&quot;)
-         sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
-      }
-   }
-   stage(&apos;Prod Test&apos;) {
-      try {
-        rocketSend &quot;Prod Deployed.  Testing&quot;
-        PROD_IP = sh (
-            script: &quot;cd infradeploy &amp;&amp; ansible -i inventory/azure --list purpose_wildflyprod | sed -n &apos;1!p&apos; | tr -d &apos; &apos;&quot;,
-            returnStdout: true
-        ).trim()
-        sh &quot;cd inttests &amp;&amp; inspec exec test.rb -t ssh://normaluser@$PROD_IP -i /var/jenkins_home/.ssh/id_rsa&quot;
-      } finally {
-          sh &quot;cd infradeploy &amp;&amp; ansible-playbook azure-wildfly-stop-instance.yml&quot;
-      }
-   }
-   stage(&apos;Results&apos;) {
-      rocketSend &quot;Production deployment ready&quot;
-   }
+   def secrets = [
+        [$class: &apos;VaultSecret&apos;, path: &apos;secret/admin&apos;, secretValues: [
+            [$class: &apos;VaultSecretValue&apos;, envVar: &apos;AZURE_CLIENT_ID&apos;, vaultKey: &apos;AZURE_CLIENT_ID&apos;],
+            [$class: &apos;VaultSecretValue&apos;, envVar: &apos;AZURE_SECRET&apos;, vaultKey: &apos;AZURE_SECRET&apos;],
+            [$class: &apos;VaultSecretValue&apos;, envVar: &apos;AZURE_TENANT&apos;, vaultKey: &apos;AZURE_TENANT&apos;],
+            [$class: &apos;VaultSecretValue&apos;, envVar: &apos;AZURE_SUBSCRIPTION_ID&apos;, vaultKey: &apos;AZURE_SUBSCRIPTION_ID&apos;]
+          ]
+        ]
+    ]
+
+  wrap([$class: &apos;VaultBuildWrapper&apos;, vaultSecrets: secrets]) {
+       env.IMAGE_NAME=&apos;demoapp&apos;
+       stage(&apos;Preparation&apos;) { // for display purposes
+          // Get some code from a GitHub repository
+          git &apos;https://github.com/dsutherland1492/jenkinsframeworkapp&apos;
+          sh &quot;chmod +x infradeploy/inventory/azure&quot;
+       }
+       stage(&apos;Build&apos;) {
+          rocketSend &quot;Build Started&quot;
+          try {
+            sh &quot;mvn clean install -f appbuild/pom.xml&quot;
+          } catch (Exception e) {
+             rocketSend &quot;Build Failed&quot;
+             error(&quot;Build Failed&quot;)
+          }
+       }
+       stage(&apos;Preprod Deploy&apos;) {
+          rocketSend &quot;Build successful, awaiting approval before preprod deploy&quot;
+          input &apos;Build successful, proceed to preproduction deployment?&apos;
+          try {
+            env.RESOURCE_GROUP=&apos;jenkinsframework-preprod&apos;
+            env.ACR_NAME=&apos;preprodacr&apos;
+            env.DNS_PREFIX=&apos;preprodaks&apos;
+            env.AKS_NAME=&apos;preprodaks&apos;
+            sh &quot;ansible-playbook azure-deploy-to-acs.yml&quot;
+            rocketSend &quot;Preprod Deploy Success&quot;
+          } catch (Exception e) {
+             rocketSend &quot;Preprod Deploy Failed&quot;
+             error(&quot;Preprod Deploy Failed&quot;)
+          }
+       }
+       stage(&apos;Preprod Test&apos;) {
+          try {
+            rocketSend &quot;Preprod Deployed.  Testing&quot;
+            env.RESOURCE_GROUP=&apos;jenkinsframework-preprod&apos;
+            env.ACR_NAME=&apos;preprodacr&apos;
+            env.DNS_PREFIX=&apos;preprodaks&apos;
+            env.AKS_NAME=&apos;preprodaks&apos;
+            sh &quot;cd inttests &amp;&amp; ansible-playbook test-kub-pod-running.yml&quot;
+          } catch (Exception e) {
+             rocketSend &quot;Preprod Test Failed&quot;
+             error(&quot;Preprod Test Failed&quot;)
+          }
+       }
+       stage(&apos;Prod Deploy&apos;) {
+          rocketSend &quot;Preprod successful, awaiting approval before prod deploy&quot;
+          input &apos;Preprod successful, proceed to production deployment?&apos;
+          try {
+            env.RESOURCE_GROUP=&apos;jenkinsframework-prod&apos;
+            env.ACR_NAME=&apos;proddemoacr&apos;
+            env.DNS_PREFIX=&apos;proddemoaks&apos;
+            env.AKS_NAME=&apos;proddemoaks&apos;
+            sh &quot;ansible-playbook azure-deploy-to-acs.yml&quot;
+            rocketSend &quot;Prod Deploy Success&quot;
+          } catch (Exception e) {
+             rocketSend &quot;Prod Deploy Failed&quot;
+             error(&quot;Prod Deploy Failed&quot;)
+          }
+       }
+       stage(&apos;Prod Test&apos;) {
+          try {
+            rocketSend &quot;Prod Deployed.  Testing&quot;
+            env.RESOURCE_GROUP=&apos;jenkinsframework-prod&apos;
+            env.ACR_NAME=&apos;proddemoacr&apos;
+            env.DNS_PREFIX=&apos;proddemoaks&apos;
+            env.AKS_NAME=&apos;proddemoaks&apos;
+            sh &quot;cd inttests &amp;&amp; ansible-playbook test-kub-pod-running.yml&quot;
+          } catch (Exception e) {
+             rocketSend &quot;Prod Test Failed&quot;
+             error(&quot;Prod Test Failed&quot;)
+          }
+       }
+       stage(&apos;Results&apos;) {
+          rocketSend &quot;Production deployment ready&quot;
+       }
+  }
 }</script>
     <sandbox>true</sandbox>
   </definition>
