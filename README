@@ -23,9 +23,19 @@ docker-compose up -d vault
 docker-compose up -d consul
 docker-compose up -d jenkins
 
-After deployment finishes, you will need to login to rocketchat, create a user account, then login to jenkins, update the AZURE 
-environment variables to match your environment and the Rocketchat plugin to match your credentials.  For automatic builds, update your 
-git repository fork to publish webhooks to your Jenkins instance.
+After deployment finishes, you will need to shell into the hashicorp vault container, initialize vault and add secrets associated with 
+you Azure api keys.
+
+docker exec -it vault.server sh
+vault operator init
+vault operator unseal (run this command 3x using the unseal keys printed out during initialization)
+vault login (us the root token printed out during initialization)
+vault write secret/admin AZURE_CLIENT=xxxxxxxxx AZURE_SECRET=xxxxxxxxxxxxxxx AZURE_SUBSCRIPTION=xxxxxxxxxxxxxxxxx AZURE_TENANT=xxxxxxxxxxxxx
+exit
+ 
+Next, login to rocketchat, create a user account, then login to jenkins, update the Rocketchat configuration to match your credentials and 
+add the vault root token credential to the vault configuration.  For automatic builds, update your git repository fork to publish webhooks 
+to your Jenkins instance.
 
 Jenkins    - http://<ipofhost>
 Rocketchat - http://<ipofhost>:3000
