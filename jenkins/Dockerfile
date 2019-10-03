@@ -104,7 +104,7 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && gem install inspec
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && gem install inspec -v 3.5.0
 RUN pip install --upgrade pip && pip install ansible packaging openshift PyYAML && pip install ansible[azure] && pip install git+https://github.com/ansible/ansible-container.git@develop && pip install openshift==0.6
 
 ARG MAVEN_VERSION=3.5.4
