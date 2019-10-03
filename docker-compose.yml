@@ -53,7 +53,7 @@ services:
     restart: unless-stopped
     hostname: consul
     command: agent -server -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect=1
-    image: consul:latest
+    image: consul:1.1.0
     volumes:
       - ./etc/consul.server/config:/consul/config
     ports:
@@ -65,7 +65,7 @@ services:
     container_name: vault.server
     restart: unless-stopped
     hostname: vault
-    image: vault
+    image: vault:0.10.0
     ports:
       - "9200:8200"
     volumes:
