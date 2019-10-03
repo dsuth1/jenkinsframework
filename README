@@ -5,14 +5,15 @@ at http://github.com/dsutherland1492/jenkinsframeworkapp
 To enable your machine, run the following as root
 
 setenforce 0
-yum install git docker epel-release
-yum install python-pip
+yum install git docker epel-release -y
+yum install python-pip -y
 pip install --upgrade pip
 pip install docker-compose
 groupadd docker
 usermod -aG docker $USER
 systemctl enable docker
 systemctl start docker
+sed -i 's/SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 
 To start the application run the following commands
 
